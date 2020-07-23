@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__author__ = 'Jed Enas'
+__author__ = 'Jed Enas with help from: Janelle Kuhns, Daniel Lomelino'
 
 import turtle
 import json
@@ -16,7 +16,7 @@ def astro_list():
     data = r.json()["people"]
     return data
     
-def astro_location():
+def iss_location():
     r = requests.get('http://api.open-notify.org/iss-now.json')
     location = r.json()["iss_position"]
     lat = float(location["latitude"])
@@ -26,7 +26,7 @@ def astro_location():
 
 def create_map(lat, lon):
     screen = turtle.Screen()
-    screen.setup(500, 500)
+    screen.setup(720, 360)
     screen.bgpic(map_gif)
     screen.setworldcoordinates(-180, -90, 180, 90)
     screen.register_shape(icon)
@@ -34,22 +34,22 @@ def create_map(lat, lon):
     iss.shape(icon)
     iss.setheading(90)
     iss.penup()
-    iss.goto(lat, lon)
+    iss.goto(lon, lat)
     return screen
     
 def plot_map(lat, lon):
     r = requests.get("http://api.open-notify.org/iss-pass.json", {"lat":lat, "lon":lon})
     r.raise_for_status()
-    overhead_time = r.json()["response"][1]["risetime"]
-    timestamps = time.ctime(overhead_time)
+    overhead_time = r.json()["response"][0]["risetime"]
+    timestamp = time.ctime(overhead_time)
     location = turtle.Turtle()
-    location.color('yellow')
     location.penup()
-    location.goto(lat, lon)
-    location.dot(25)
+    location.color('yellow')
+    location.goto(lon, lat)
+    location.dot(5)
+    location.write(timestamp)
     location.hideturtle()
-    location.write(timestamps)
-    return timestamps
+    return timestamp
 
 
 def main():
@@ -60,14 +60,13 @@ def main():
     print(len(astros))
     
     # Part B
-    # astro_loc = astro_location()
-    # for loc in astro_loc:
-    #     print(f"-{loc['latitude'], loc['longitude']}")
+    iss_lat, iss_lon, _ = iss_location()
+    
     # Part C
+    create_map(iss_lat, iss_lon)
+    plot_map(39.7684, -86.1581)
 
-    print(astro_location())
-    print(create_map(39, 86))
-
+    turtle.done()
 
 if __name__ == '__main__':
     main()
